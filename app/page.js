@@ -9,8 +9,9 @@ import {
   Stack,
   TextField,
   Button,
+  Grid,
 } from "@mui/material";
-import { collection, getDocs, query, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, query, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
@@ -31,6 +32,7 @@ export default function Home() {
   };
 
   const addItem = async (item) => {
+    const docRef = doc(collection(firestore, "inventory"), item);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -48,7 +50,7 @@ export default function Home() {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const { quantity } = docSnap.data();
-      if (quantity === -1) {
+      if (quantity === 1) {
         await deleteDoc(docRef);
       } else {
         await setDoc(docRef, { quantity: quantity - 1 });
@@ -123,9 +125,9 @@ export default function Home() {
       >
         Add New Item
       </Button>
-      <Box border="1px solid #333">
+      <Box border="1px solid #333" width="800px">
         <Box
-          width="800px"
+          width="100%"
           height="100px"
           bgcolor="#ADD8E6"
           display="flex"
@@ -137,25 +139,29 @@ export default function Home() {
           </Typography>
         </Box>
       </Box>
-      <Stack width="800px" height="300px" spacing={2} overflow="auto">
+      <Stack width="800px" spacing={2}>
         {inventory.map(({ name, quantity }) => (
-          <Box
+          <Grid
+            container
             key={name}
             width="100%"
-            minHeight="150px"
-            display="flex"
+            minHeight="50px"
             alignItems="center"
-            justifyContent="center"
-            bgColor="#f0f0f0"
-            padding={5}
+            justifyContent="space-between"
+            backgroundColor="#f0f0f0"
+            padding={2}
           >
-            <Typography variant="h3" color="#333" textAlign="center">
-              {name.charAt(0).toUpperCase() + name.slice(1)}
-            </Typography>
-            <Typography variant="h3" color="#333" textAlign="center">
-              {quantity}
-            </Typography>
-          </Box>
+            <Grid item xs={6}>
+              <Typography variant="h6" color="#333">
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6" color="#333" textAlign="right">
+                Quantity: {quantity}
+              </Typography>
+            </Grid>
+          </Grid>
         ))}
       </Stack>
     </Box>
